@@ -14,32 +14,32 @@
 <h3>Webpack 5</h3>
 
 ```bash
-  npm i --save-dev v-webpack-plugin
+  npm i --save-dev version-manage-plugin
 ```
 
 ```bash
-  yarn add --dev v-webpack-plugin
+  yarn add --dev version-manage-plugin
 ```
 
 <h3>Webpack 4</h3>
 
 ```bash
-  npm i --save-dev v-webpack-plugin
+  npm i --save-dev version-manage-plugin
 ```
 
 ```bash
-  yarn add --dev v-webpack-plugin
+  yarn add --dev version-manage-plugin
 ```
 
 <h2 align="center">使用</h2>
 
-`VWebpackPlugin`可以更好的管理你的包版本，发布时通过调用`shell`获得远程最新的包版本号同时智能的指引你发布的包版本。
+`version-manage-plugin`可以更好的管理你的包版本，发布时通过调用`shell`获得远程最新的包版本号同时智能的指引你发布的包版本。
 
 **webpack.config.js**
 
 ```js
 const path = require('path');
-const VWebpackPlugin = require('v-webpack-plugin').default;
+const VWebpackPlugin = require('version-manage-plugin').default;
 
 module.exports = {
   entry: './index.js',

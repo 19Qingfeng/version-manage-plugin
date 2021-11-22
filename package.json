@@ -1,5 +1,5 @@
 {
-  "name": "v-webpack-plugin",
+  "name": "jsonv-webpack-plugin",
   "version": "0.0.1",
   "description": "A Webpack Plugin for Better management version number.",
   "private": false,
