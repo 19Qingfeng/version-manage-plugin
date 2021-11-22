@@ -1,0 +1,49 @@
+{
+  "name": "v-webpack-plugin",
+  "version": "0.0.4",
+  "description": "A Webpack Plugin for Better management version number.",
+  "private": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "keywords": [
+    "Webpack",
+    "npm version"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "rm": "rimraf ./dist",
+    "dev": "ts-node ./lib/index.ts",
+    "copy": "sh ./build.sh",
+    "build-watch": "tsc --project ./tsconfig.json --watch",
+    "build-ts": "tsc --project ./tsconfig.json",
+    "build": "npm run rm && npm run build-ts && npm run copy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/19Qingfeng/v-webpack-plugin.git"
+  },
+  "author": "wang.haoyu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/19Qingfeng/v-webpack-plugin/issues"
+  },
+  "homepage": "https://github.com/19Qingfeng/v-webpack-plugin#readme",
+  "devDependencies": {
+    "@types/inquirer": "^8.1.3",
+    "@types/signale": "^1.4.2",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2",
+    "webpack": "^5.64.1"
+  },
+  "dependencies": {
+    "execa": "^5.1.0",
+    "inquirer": "^8.2.0",
+    "ora": "^5.0.1",
+    "signale": "^1.4.0"
+  }
+}
