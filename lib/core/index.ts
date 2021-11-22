@@ -1,20 +1,21 @@
 import Process from '../utils/process';
-import { Compilation, Compiler } from 'webpack';
-import Sign from '../utils/signable';
-import { generatorPackageJson } from '../utils/index';
-const { pluginName } = require('../utils/constant');
-
 import execa from 'execa';
+import Sign from '../utils/signable';
+import { Compilation, Compiler } from 'webpack';
+import { generatorPackageJson } from '../utils/index';
+import { pluginName } from '../utils/constant';
+import { validateParams } from '../utils/validate';
 
 const inquirer = require('inquirer');
 
-interface Options {
+export interface Options {
   name: string;
   output: string;
   registry?: string;
   pckTemplate?: string;
 }
 
+// TODO: 预留pck实现
 class VWebpackPlugin {
   public packageName: string;
   public output: string;
@@ -24,12 +25,18 @@ class VWebpackPlugin {
   private inputPackageVersion: string;
   private originVersion: string;
   private autoContext: string | null;
-  constructor({
-    name,
-    registry = 'http://registry.npmjs.org/',
-    output,
-    pckTemplate,
-  }: Options) {
+  constructor(options: Options) {
+    const {
+      name,
+      registry = 'http://registry.npmjs.org/',
+      output,
+      pckTemplate,
+    } = options;
+    // 初始化时进行参数校验
+    validateParams(options, {
+      name: pluginName,
+      baseDataPath: `${pluginName}:options`,
+    });
     this.packageName = name;
     this.registry = registry;
     this.output = output;

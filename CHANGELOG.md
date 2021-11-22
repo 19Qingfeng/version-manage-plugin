@@ -16,3 +16,7 @@
 - `hooks.done`->`hooks.afterEmit`.
 - 修改生成`pck->publishConfig`默认为`http://registry.npmjs.org/`。
 - 删除之前版本 log
+
+# 0.0.5
+
+- `name`,`register`,`output`参数校验。
