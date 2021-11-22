@@ -24,14 +24,14 @@
   "publishConfig": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/19Qingfeng/v-webpack-plugin.git"
+    "url": "git+https://github.com/19Qingfeng/version-manage-plugin.git"
   },
-  "author": "wang.haoyu",
+  "author": "19Qingfeng",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/19Qingfeng/v-webpack-plugin/issues"
+    "url": "https://github.com/19Qingfeng/version-manage-plugin/issues"
   },
-  "homepage": "https://github.com/19Qingfeng/v-webpack-plugin#readme",
+  "homepage": "https://github.com/19Qingfeng/version-manage-plugin#readme",
   "devDependencies": {
     "@types/inquirer": "^8.1.3",
     "@types/signale": "^1.4.2",
