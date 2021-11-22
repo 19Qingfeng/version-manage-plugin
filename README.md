@@ -4,7 +4,7 @@
     <img width="200" height="200"
       src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b148304186f0459db30bb54f39de44ab~tplv-k3u1fbpfcp-zoom-1.image">
   </a>
-  <h1>V Webpack Plugin</h1>
+  <h1>Version Manage Plugin</h1>
   <p>A webpack plugin for better managment your package version number.</p>
   <img src="http://hycoding.com/v-webpack.png">
 </div>
