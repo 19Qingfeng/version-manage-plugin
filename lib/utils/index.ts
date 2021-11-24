@@ -1,3 +1,5 @@
+import { ENV_LIST, ENV_VARIABLE } from './constant';
+
 function generatorPackageJson(
   targetName: string,
   version: string = '1.0.0',
@@ -22,4 +24,14 @@ function generatorPackageJson(
 `;
 }
 
-export { generatorPackageJson };
+function invalidValue(value: string) {
+  const result = ENV_LIST.includes(value);
+  if (!result) {
+    throw new Error(
+      `${ENV_VARIABLE} must be one of the${ENV_LIST.toString()},but got ${value}.`
+    );
+  }
+  return true;
+}
+
+export { generatorPackageJson, invalidValue };

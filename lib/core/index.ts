@@ -2,8 +2,8 @@ import Process from '../utils/process';
 import execa from 'execa';
 import Sign from '../utils/signable';
 import { Compilation, Compiler } from 'webpack';
-import { generatorPackageJson } from '../utils/index';
-import { pluginName } from '../utils/constant';
+import { generatorPackageJson, invalidValue } from '../utils/index';
+import { ENV_VARIABLE, pluginName } from '../utils/constant';
 import { validateParams } from '../utils/validate';
 
 const inquirer = require('inquirer');
@@ -55,10 +55,15 @@ class VWebpackPlugin {
         Sign.logger();
         // 无论无核都要拉取最新的版本号 不使用npm version patch
         this.originVersion = await this.fetchOriginVersion();
-        // 获得用户输入的版本号
-        await this.askCustomizeVersion();
-        // 移动packageJson
-        await this.generatePck(compilation);
+
+        // 检查是否存在环境变量参数 存在的话则直接自动
+        const manual = await this.processArgv();
+        if (manual) {
+          // 获得用户输入的版本号
+          await this.askCustomizeVersion();
+          // 移动packageJson
+          await this.generatePck(compilation);
+        }
         return callback();
       }
     );
@@ -90,6 +95,43 @@ class VWebpackPlugin {
     } else {
       await this.autoUpdate();
     }
+  }
+
+  // 处理环境变量 返回true表示需要手动
+  processArgv() {
+    const argv = process.argv.slice(2);
+    const enVariable = argv
+      .filter((item) => item.indexOf(ENV_VARIABLE) !== -1)
+      .map((item) => {
+        const [key, value] = item.split('=');
+        return {
+          key,
+          value,
+        };
+      })[0];
+    if (enVariable) {
+      const value = enVariable.value;
+      // 判断是否合理
+      invalidValue(value);
+      // 通过获得对应值进行处理
+      switch (value) {
+        case 'patch':
+          // 默认小版本号
+          break;
+        case 'minor':
+          // 次版本号
+          break;
+        case 'major':
+          // 大版本号
+          break;
+        case 'auto':
+          return true;
+      }
+      console.log('自动处理');
+      return false;
+    }
+    console.log('手动处理');
+    return true;
   }
 
   // 自动升级流程
