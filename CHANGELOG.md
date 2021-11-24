@@ -1,6 +1,6 @@
 # 0.0.1
 
-- 业务也用版本。
+- 业务投用版本。
 
 # 0.0.2
 
@@ -9,14 +9,5 @@
 
 # 0.0.3
 
-- 删除生成`package.json`时`name`前缀。
-
-# 0.0.4
-
-- `hooks.done`->`hooks.afterEmit`.
-- 修改生成`pck->publishConfig`默认为`http://registry.npmjs.org/`。
-- 删除之前版本 log
-
-# 0.0.5
-
-- `name`,`register`,`output`参数校验。
+- 支持环境变量注入方式.
+- 更好的错误提示。

@@ -64,3 +64,20 @@ module.exports = {
 |   name   | string |          `required`          | 生成的`package.json`中的包名称 |
 |  output  | string |          `required`          | 打包后生成内容的文件夹路径     |
 | registry | string | `http://registry.npmjs.org/` | `npm`源                        |
+
+<h2 align="center">环境变量</h2>
+
+`version-manage-plugin`还支持通过环境变量注入的方式更新包版本。
+
+### `__version__plugin__mode`
+
+- `__version__plugin__mode=patch`
+- `__version__plugin__mode=minor`
+- `__version__plugin__mode=major`
+- `__version__plugin__mode=auto`
+
+当传递`patch`、`minor`、`major`时，会根据对应的值直接进行版本号修改跳过询问步骤。
+
+当传递`auto`时，会进入版本号询问环节，支持上述三种定义以及输入自定义版本号。
+
+默认不传递`__version__plugin__mode`时，开启询问模式。

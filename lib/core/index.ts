@@ -61,9 +61,9 @@ class VWebpackPlugin {
         if (manual) {
           // 获得用户输入的版本号
           await this.askCustomizeVersion();
-          // 移动packageJson
-          await this.generatePck(compilation);
         }
+        // 移动packageJson
+        await this.generatePck(compilation);
         return callback();
       }
     );
@@ -73,6 +73,13 @@ class VWebpackPlugin {
         return;
       }
       this.autoUpdateVersion();
+    });
+
+    compiler.hooks.done.tap(pluginName, () => {
+      Sign.success(`
+      \n
+      ${pluginName}: 😊 Now the package named ${this.packageName} version number is updated!
+      \n`);
     });
   }
 
@@ -100,6 +107,7 @@ class VWebpackPlugin {
   // 处理环境变量 返回true表示需要手动
   processArgv() {
     const argv = process.argv.slice(2);
+    // TODO: 参数校验是indexOf
     const enVariable = argv
       .filter((item) => item.indexOf(ENV_VARIABLE) !== -1)
       .map((item) => {
@@ -111,26 +119,22 @@ class VWebpackPlugin {
       })[0];
     if (enVariable) {
       const value = enVariable.value;
-      // 判断是否合理
       invalidValue(value);
-      // 通过获得对应值进行处理
       switch (value) {
+        // 默认小版本号
         case 'patch':
-          // 默认小版本号
-          break;
+        // 次版本号
         case 'minor':
-          // 次版本号
-          break;
+        // 大版本号
         case 'major':
-          // 大版本号
+          this.autoContext = value;
+          this.inputPackageVersion = this.originVersion;
           break;
         case 'auto':
           return true;
       }
-      console.log('自动处理');
       return false;
     }
-    console.log('手动处理');
     return true;
   }
 

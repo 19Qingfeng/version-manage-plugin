@@ -1,4 +1,4 @@
-export const pluginName = 'VWebpackPlugin';
+export const pluginName = 'VersionManagePlugin';
 
 export const ENV_VARIABLE = '__version__plugin__mode';
 

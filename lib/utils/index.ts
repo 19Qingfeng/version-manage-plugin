@@ -1,4 +1,4 @@
-import { ENV_LIST, ENV_VARIABLE } from './constant';
+import { ENV_LIST, ENV_VARIABLE, pluginName } from './constant';
 
 function generatorPackageJson(
   targetName: string,
@@ -28,7 +28,7 @@ function invalidValue(value: string) {
   const result = ENV_LIST.includes(value);
   if (!result) {
     throw new Error(
-      `${ENV_VARIABLE} must be one of the${ENV_LIST.toString()},but got ${value}.`
+      `${pluginName}: ${ENV_VARIABLE} must be one of the${ENV_LIST.toString()},but got ${value}.`
     );
   }
   return true;
