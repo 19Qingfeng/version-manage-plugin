@@ -69,8 +69,6 @@ module.exports = {
 
 `version-manage-plugin`还支持通过环境变量注入的方式更新包版本。
 
-### `__version__plugin__mode`
-
 - `__version__plugin__mode=patch`
 - `__version__plugin__mode=minor`
 - `__version__plugin__mode=major`
