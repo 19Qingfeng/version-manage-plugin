@@ -1,7 +1,7 @@
 import Process from '../utils/process';
-import execa from 'execa';
+import execa, { ExecaError } from 'execa';
 import Sign from '../utils/signable';
-import { Compilation, Compiler } from 'webpack';
+import { Compilation, Compiler, sources } from 'webpack';
 import { generatorPackageJson, invalidValue } from '../utils/index';
 import { ENV_VARIABLE, pluginName } from '../utils/constant';
 import { validateParams } from '../utils/validate';
@@ -22,6 +22,7 @@ class VWebpackPlugin {
   public pckTemplate?: string;
   public registry?: string;
   private sign?: Sign;
+  private isFirst = false;
   private inputPackageVersion: string;
   private originVersion: string;
   private autoContext: string | null;
@@ -37,6 +38,7 @@ class VWebpackPlugin {
       name: pluginName,
       baseDataPath: `${pluginName}:options`,
     });
+    this.isFirst = false;
     this.packageName = name;
     this.registry = registry;
     this.output = output;
@@ -53,12 +55,24 @@ class VWebpackPlugin {
       async (compilation: Compilation, callback) => {
         // 先解释版本升级
         Sign.logger();
+
         // 无论无核都要拉取最新的版本号 不使用npm version patch
-        this.originVersion = await this.fetchOriginVersion();
+        try {
+          this.originVersion = await this.fetchOriginVersion();
+        } catch (e) {
+          const error = e as ExecaError;
+          if (error.message.indexOf('404')) {
+            // 标记第一次发包
+            this.originVersion = await this.firstRelease();
+          } else {
+            Sign.error(`${pluginName} Error:${JSON.stringify(error.message)}`);
+            return;
+          }
+        }
 
         // 检查是否存在环境变量参数 存在的话则直接自动
         const manual = await this.processArgv();
-        if (manual) {
+        if (manual && !this.isFirst) {
           // 获得用户输入的版本号
           await this.askCustomizeVersion();
         }
@@ -81,6 +95,24 @@ class VWebpackPlugin {
       ${pluginName}: 😊 Now the package named ${this.packageName} version number is updated!
       \n`);
     });
+  }
+
+  // 处理404首次发布包版本
+  async firstRelease() {
+    this.isFirst = true;
+    Sign.success(
+      `${this.packageName} remote not found,Please manually enter the version.`
+    );
+    // 询问用户首次发布的版本号是多少 默认0.0.1
+    const { versionNumber } = await inquirer.prompt({
+      name: 'versionNumber',
+      type: 'string',
+      default: '0.0.1',
+      message: 'Please enter the first release version number.',
+    });
+    this.inputPackageVersion = versionNumber;
+    this.autoContext = null;
+    return versionNumber;
   }
 
   // 询问开发者是否需要自定义版本号
@@ -172,31 +204,37 @@ class VWebpackPlugin {
       this.inputPackageVersion,
       this.registry
     );
-    // @ts-ignore
-    compilation.assets['package.json'] = {
-      size: () => source.length,
-      source: () => source,
-      // buffer: () => new Buffer(8),
-      // map: () => ({}),
-      // sourceAndMap: () => ({ source: '', map: {} }),
-      // updateHash: () => undefined,
-    };
+    compilation.emitAsset('package.json', new sources.RawSource(source));
+    // webpack 4版本 暂时不兼容
+    // compilation.assets['package.json'] = {
+    //   size: () => source.length,
+    //   source: () => source,
+    //   // buffer: () => new Buffer(8),
+    //   // map: () => ({}),
+    //   // sourceAndMap: () => ({ source: '', map: {} }),
+    //   // updateHash: () => undefined,
+    // };
   }
 
   // 拉去远程版本号
-  async fetchOriginVersion() {
+  async fetchOriginVersion(): Promise<string> {
     const packageName = this.packageName;
     const process = new Process({
       text: `fetch the latest version of ${packageName} ...`,
     });
-    process.loading();
-    const { stdout } = await this._runShell(
-      `npm view ${this.packageName} version`
-    );
-    process.success();
-    this.sign = new Sign(packageName, stdout);
-    this.sign.version(`The latest version of ${packageName} is ${stdout}`);
-    return stdout;
+    try {
+      process.loading();
+      const { stdout } = await this._runShell(
+        `npm view ${this.packageName} version`
+      );
+      process.success();
+      this.sign = new Sign(packageName, stdout);
+      this.sign.version(`The latest version of ${packageName} is ${stdout}`);
+      return stdout;
+    } catch (e) {
+      process.error();
+      return Promise.reject(e);
+    }
   }
 
   // 执行shell脚本
