@@ -62,6 +62,10 @@ class Sign {
   static success(text: string) {
     signale.success(text);
   }
+
+  static error(text: string) {
+    signale.error(text);
+  }
 }
 
 export default Sign;

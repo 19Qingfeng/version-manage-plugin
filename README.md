@@ -24,12 +24,14 @@
 <h3>Webpack 4</h3>
 
 ```bash
-  npm i --save-dev version-manage-plugin
+  npm i --save-dev version-manage-plugin@0.0.4
 ```
 
 ```bash
-  yarn add --dev version-manage-plugin
+  yarn add --dev version-manage-plugin@0.0.4
 ```
+
+<p> 最新0.0.5版本暂时删除`webpack 4`兼容 </p>
 
 <h2 align="center">使用</h2>
 
