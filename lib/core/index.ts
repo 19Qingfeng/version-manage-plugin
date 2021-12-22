@@ -176,8 +176,8 @@ class VWebpackPlugin {
     const { name } = await inquirer.prompt({
       name: 'name',
       type: 'list',
-      choices: ['patch', 'minor', 'major'],
-      default: ['patch'],
+      choices: ['prerelease', 'patch', 'minor', 'major'],
+      default: ['prerelease'],
       message: 'Select the version of the version that needs to be modified.',
     });
     this.autoContext = name;
@@ -186,7 +186,13 @@ class VWebpackPlugin {
 
   // 根据输入自动输入更新
   async autoUpdateVersion() {
-    const autoContext = this.autoContext;
+    let autoContext = this.autoContext;
+    // 这里需要一个prerelease
+    // prerelease
+    if (autoContext === 'prerelease') {
+      //  先行版本
+      autoContext = autoContext + `  --preid=alpha`;
+    }
     this._runShell(`npm version ${autoContext}`, [], {
       cwd: this.output,
     });

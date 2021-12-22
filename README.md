@@ -6,7 +6,7 @@
   </a>
   <h1>Version Manage Plugin</h1>
   <p>A webpack plugin for better manage your package version number.</p>
-  <img src="http://hycoding.com/v-webpack.png">
+  <img src="http://hycoding.com/version-manage-plugin.png">
 </div>
 
 <h2 align="center">安装</h2>
