@@ -11,6 +11,7 @@ const inquirer = require('inquirer');
 export interface Options {
   name: string;
   output: string;
+  rootDir: string;
   registry?: string;
   pckTemplate?: string;
 }
@@ -19,6 +20,7 @@ export interface Options {
 class VWebpackPlugin {
   public packageName: string;
   public output: string;
+  public rootDir: string;
   public pckTemplate?: string;
   public registry?: string;
   private sign?: Sign;
@@ -26,18 +28,21 @@ class VWebpackPlugin {
   private inputPackageVersion: string;
   private originVersion: string;
   private autoContext: string | null;
+  private gitTagVersion: string | null;
   constructor(options: Options) {
     const {
       name,
       registry = 'http://registry.npmjs.org/',
       output,
       pckTemplate,
+      rootDir,
     } = options;
     // 初始化时进行参数校验
     validateParams(options, {
       name: pluginName,
       baseDataPath: `${pluginName}:options`,
     });
+    this.rootDir = rootDir;
     this.isFirst = false;
     this.packageName = name;
     this.registry = registry;
@@ -48,6 +53,8 @@ class VWebpackPlugin {
     this.sign = undefined;
     // 自动内容
     this.autoContext = null;
+    // 用于git工作流
+    this.gitTagVersion = null;
   }
   async apply(compiler: Compiler) {
     compiler.hooks.emit.tapAsync(
@@ -82,14 +89,24 @@ class VWebpackPlugin {
       }
     );
 
-    compiler.hooks.afterEmit.tap(pluginName, () => {
+    compiler.hooks.afterEmit.tap(pluginName, async () => {
       if (!this.autoContext) {
         return;
       }
-      this.autoUpdateVersion();
+      await this.autoUpdateVersion();
+      // 开启git
+      if (this.autoContext === 'prerelease') {
+        await this.startGitWorkflow();
+        Sign.success(`
+          \n
+          ${pluginName}: Generate tag ${this.gitTagVersion}!
+          \n
+          Automatic Push tag "${this.packageName}@${this.gitTagVersion}" success.
+          \n`);
+      }
     });
 
-    compiler.hooks.done.tap(pluginName, () => {
+    compiler.hooks.done.tap(pluginName, async () => {
       Sign.success(`
       \n
       ${pluginName}: 😊 Now the package named ${this.packageName} version number is updated!
@@ -195,23 +212,50 @@ class VWebpackPlugin {
       cwd: this.output,
     });
     if (autoContext?.startsWith('prerelease')) {
-      await this.publishPackageWithGit(stdout);
-      Sign.success(`
-      \n
-      ${pluginName}: Generate tag ${stdout}!
-      \n
-      you can run "git push origin ${this.packageName}@${stdout}" trigger publish.
-      \n`);
+      this.gitTagVersion = stdout;
     }
   }
 
-  // 生成版本号完成自动push/tag
-  async publishPackageWithGit(version: string) {
-    return await this._runShellCore(
-      `git tag -a '${this.packageName}@${version}' -m "${version}"`,
+  // git 工作流
+  async startGitWorkflow() {
+    // 查看当前所在分支 git branch --show-current
+    const { stdout } = await this._runShellCore(
+      `git branch --show-current`,
       [],
       {
         cwd: this.output,
+      }
+    );
+    // 提交
+    await this._runShellCore(`git add .`, [], {
+      cwd: this.rootDir,
+    });
+    // commit
+    await this._runShellCore(
+      `git commit -m "build ${this.packageName}@${this.gitTagVersion}"`,
+      [],
+      {
+        cwd: this.output,
+      }
+    );
+    // push
+    await this._runShellCore(`git push origin ${stdout}`, [], {
+      cwd: this.output,
+    });
+    // 打tag
+    await this._runShellCore(
+      `git tag -a '${this.packageName}@${this.gitTagVersion}' -m "${this.gitTagVersion}"`,
+      [],
+      {
+        cwd: this.output,
+      }
+    );
+    // 推送tag
+    await this._runShellCore(
+      `git push origin ${this.packageName}@${this.gitTagVersion}`,
+      [],
+      {
+        cwd: this.rootDir,
       }
     );
   }

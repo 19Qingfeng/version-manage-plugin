@@ -16,12 +16,16 @@ const schema: JSONSchema7 = {
       description: 'Please output a folder path after packaging.',
       type: 'string',
     },
+    rootDir: {
+      description: 'Please enter the project root directory path',
+      type: 'string',
+    },
     registry: {
       description: 'please enter the npm registered address.',
       type: 'string',
     },
   },
-  required: ['name', 'output'],
+  required: ['name', 'output', 'rootDir'],
   additionalProperties: false,
 };
 
@@ -33,6 +37,10 @@ function validateParams(
   const output = options.output;
   if (!path.isAbsolute(output)) {
     throw new Error(`${pluginName}: Options.output must be a absolute path.`);
+  }
+  const rootDir = options.rootDir;
+  if (!path.isAbsolute(rootDir)) {
+    throw new Error(`${pluginName}: Options.rootDir must be a absolute path.`);
   }
 }
 

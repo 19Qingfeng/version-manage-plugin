@@ -64,8 +64,11 @@ module.exports = {
 |   Name   |  Type  |           Default            | Description                    |
 | :------: | :----: | :--------------------------: | :----------------------------- |
 |   name   | string |          `required`          | 生成的`package.json`中的包名称 |
+| rootDir  | string |          `required`          | 当前项目跟路径                 |
 |  output  | string |          `required`          | 打包后生成内容的文件夹路径     |
 | registry | string | `http://registry.npmjs.org/` | `npm`源                        |
+
+> prerelease 下推送会自动在根目录提交并推送文件变成，并且生成对应 alpha 版本 Tag 同时自动提交。
 
 <h2 align="center">环境变量</h2>
 
