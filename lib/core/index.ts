@@ -187,15 +187,33 @@ class VWebpackPlugin {
   // 根据输入自动输入更新
   async autoUpdateVersion() {
     let autoContext = this.autoContext;
-    // 这里需要一个prerelease
-    // prerelease
     if (autoContext === 'prerelease') {
-      //  先行版本
+      // TODO:校验当前如果是master 直接报错
       autoContext = autoContext + `  --preid=alpha`;
     }
-    this._runShell(`npm version ${autoContext}`, [], {
+    const { stdout } = await this._runShell(`npm version ${autoContext}`, [], {
       cwd: this.output,
     });
+    if (autoContext?.startsWith('prerelease')) {
+      await this.publishPackageWithGit(stdout);
+      Sign.success(`
+      \n
+      ${pluginName}: Generate tag ${stdout}!
+      \n
+      you can run "git push origin ${this.packageName}@${stdout}" trigger publish.
+      \n`);
+    }
+  }
+
+  // 生成版本号完成自动push/tag
+  async publishPackageWithGit(version: string) {
+    return await this._runShellCore(
+      `git tag -a '${this.packageName}@${version}' -m "${version}"`,
+      [],
+      {
+        cwd: this.output,
+      }
+    );
   }
 
   // 生成package.json
@@ -243,7 +261,7 @@ class VWebpackPlugin {
     }
   }
 
-  // 执行shell脚本
+  // 执行shell脚本 默认携带npm源
   async _runShell(
     shell: string,
     args: readonly string[] = [],
@@ -253,7 +271,16 @@ class VWebpackPlugin {
     if (this.registry) {
       innerArgs.push(...['--registry', this.registry]);
     }
-    return await execa(shell, [...innerArgs, ...args], {
+    return this._runShellCore(shell, [...innerArgs, ...args], options);
+  }
+
+  // 核心Shell执行
+  async _runShellCore(
+    shell: string,
+    args: readonly string[] = [],
+    options: execa.Options = {}
+  ) {
+    return await execa(shell, [...args], {
       ...options,
       shell: true,
     });
